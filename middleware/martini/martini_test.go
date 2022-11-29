@@ -25,6 +25,7 @@ func TestMiddleware(t *testing.T) {
 		expRespBody string
 	}{
 		"A default HTTP middleware should call the recorder to measure.": {
+			handlerID: "/test",
 			req: func() *http.Request {
 				return httptest.NewRequest(http.MethodPost, "/test", nil)
 			},

@@ -7,14 +7,13 @@ import (
 	"net/http"
 )
 
-type handler func() martini.Handler
-
 // Handler returns a martini.Handler measuring middleware.
 func Handler(handlerID string, m middleware.Middleware) martini.Handler {
 	return func(rw http.ResponseWriter, r *http.Request, c martini.Context) {
 		reporter := &reporter{
 			w: rw.(martini.ResponseWriter),
 			r: *r,
+			u: handlerID,
 		}
 		m.Measure(handlerID, reporter, func() {
 			c.Next()
@@ -33,13 +32,14 @@ type responseWriterInterceptor struct {
 type reporter struct {
 	w martini.ResponseWriter
 	r http.Request
+	u string
 }
 
 func (s *reporter) Method() string { return s.r.Method }
 
 func (s *reporter) Context() context.Context { return s.r.Context() }
 
-func (s *reporter) URLPath() string { return s.r.URL.Path }
+func (s *reporter) URLPath() string { return s.u }
 
 func (s *reporter) StatusCode() int { return s.w.Status() }
 
